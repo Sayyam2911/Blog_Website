@@ -1,5 +1,6 @@
 import {Logo,LoginImg} from '../../assets/index';
 import {useState} from 'react'
+import {API} from '../../service/api'
 
 const SignUpInitialValues = {
     name : '',
@@ -9,6 +10,7 @@ const SignUpInitialValues = {
 
 const Login = () => {
     const [account,toggleaccount] = useState('login')
+    const [errorValue, setError] = useState('')
     const toggleSignUp = () => {
         account === 'login' ? toggleaccount('signup') : toggleaccount('login');
     }
@@ -16,6 +18,26 @@ const Login = () => {
     const OnInputChange = (e) =>{
         setSignup({...signup,[e.target.name] : e.target.value})
     }
+
+
+    const SignUpUser = async() => {
+        let response = await API.userSignup(signup);
+        console.log("Hello" ,response)
+        try {
+            if (response.isSuccess) {
+                setError('');
+                setSignup(SignUpInitialValues);
+                toggleaccount('login');
+            }
+            else {
+                setError("Something Went Wrong! Please try again later");
+            }
+        }catch(error) {
+            setError('Something went wrong! please try again later');
+        }
+    }
+
+
     return (<>
             <div className="flex min-h-full flex-col justify-center px-6 pt-14 pb-12 lg:px-80" style={{ backgroundImage: `url(${LoginImg})`, backgroundSize: 'cover' ,backgroundPosition:'center'}}>
                     { account === 'login' ?
@@ -107,7 +129,7 @@ const Login = () => {
                             </h2>
                         </div>
                         <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
-                            <form className="space-y-6" action="#" method="POST">
+                            <div className="space-y-6">
                                 <div>
                                     <label
                                         htmlFor="Name"
@@ -166,15 +188,19 @@ const Login = () => {
                                         />
                                     </div>
                                 </div>
+                                 {errorValue && <div className="text-rose-600 text-sm">{errorValue}</div>}
                                 <div>
                                     <button
                                         type="submit"
                                         className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                        onClick={() => {
+                                            SignUpUser()
+                                        }}
                                     >
                                         Sign Up
                                     </button>
                                 </div>
-                            </form>
+                            </div>
                             <p className="mt-7 pb-3 text-center text-sm text-gray-500">
                                 Already a Member?
                                 <a
